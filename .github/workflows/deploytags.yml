@@ -1,0 +1,38 @@
+name: CI/CD
+run-name: ${{ github.workflow }} by @${{ github.actor }}
+
+on:
+  push:
+    tags: '*'
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    if: github.event.base_ref == 'refs/heads/mai'
+    environment: ${{ github.event.base_ref == 'refs/heads/main' && 'PRO' || 'PRE' }}
+    env:
+      ENTORNO: ${{ github.event.base_ref == 'refs/heads/main' && 'PRO' || 'PRE' }}
+      TAG: ${{github.ref}}
+    steps:
+      - name: github.event.base_ref
+        run: echo ${{ github.event.base_ref }}
+      - run: echo $ENTORNO
+      - name: Checkout code tag
+        uses: actions/checkout@v4
+        with:
+          ref:  ${{ env.VERSION }}
+      - name: ver env-version
+        run: echo $TAG
+      - name: Get the version
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - name: ensure
+        run: echo ${{ env.VERSION }}
+      - name: Imprimir información del evento
+        run: |
+          echo "Información del evento:"
+          echo "${{ toJson(github.event) }}"
+      - name: Imprimir información del evento
+        run: |
+          echo "Información del evento:"
+          echo "${{ toJson(github.event.ref) }}"
